@@ -7,8 +7,8 @@ import re
 app = FastAPI()
 
 
-@app.post("/sample")
-async def example_hook(request: Request):
+@app.post("/alerts")
+async def default_webhook(request: Request):
     """
     Example webhook. Guide for creating new webhooks and automation scripts 
     """
