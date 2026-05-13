@@ -18,15 +18,22 @@ async def example_hook(request: Request):
     data = await request.json()
 
     for alert in data.get('alerts', []):
+        status = alert.get('status', '')
+
+        if status != "firing":
+            continue
+
         labels = alert.get('labels', {})
 
-        device = labels.get('instance', 'Unknown Device')
-        prop = labels.get('property', labels.get('alertname', 'Unknown Property'))
-        raw_value = alert.get('valueString', 'N/A')
+        node_id = int(labels.get('node_id', '0'))
+        prop = labels.get('alertname', 'Unknown Property')
+        value = alert.get('values', []).get('A')
+        value_string = alert.get('valueString', '')
 
-        print(f"[{received_at}] Device: {device} | Property: {prop} | Value: {raw_value} ")
+        print(f"[{received_at}] Device: {node_id} | Property: {prop} | Value: {value} || {value_string}")
 
-    return { "status": "success" }
+    return {"status": "sent"}
+
 
 def get_query_value(raw_value: str):
     """
