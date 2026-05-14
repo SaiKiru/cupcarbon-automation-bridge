@@ -1,10 +1,19 @@
 from fastapi import FastAPI, Request
+from fastapi_mqtt import FastMQTT, MQTTConfig
 from datetime import datetime
 import asyncio
 import uvicorn
 import re
 
 app = FastAPI()
+
+mqtt_config = MQTTConfig(
+    host="localhost",
+    port=1883
+)
+
+mqtt = FastMQTT(config=mqtt_config)
+mqtt.init_app(app)
 
 
 @app.post("/alerts")
@@ -32,7 +41,25 @@ async def default_webhook(request: Request):
 
         print(f"[{received_at}] Device: {node_id} | Property: {prop} | Value: {value} || {value_string}")
 
+        if prop == "CupCarbon High Latency Alert":
+            handle_latency(node_id, value)
+
     return {"status": "sent"}
+
+
+def handle_latency(node_id: int, value: int):
+    if value > 5:
+        pass
+    elif value > 3:
+        pass
+    elif value > .9:
+        pass
+
+    # instructions
+    # [POWER_DOWN] <node_id> <value>
+    # [POWER_UP] <node_id> <value>
+    
+    mqtt.publish("cupcarbontest/x", f"[POWER_DOWN] {node_id} 0.1")
 
 
 def get_query_value(raw_value: str):
